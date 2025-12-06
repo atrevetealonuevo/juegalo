@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Flipper Casino - Arcade Chileno</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Login Screen */
+        #loginScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #ff00ff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0 30px #ff00ff, inset 0 0 20px rgba(255, 0, 255, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px #ff00ff, inset 0 0 20px rgba(255, 0, 255, 0.2); }
+            50% { box-shadow: 0 0 50px #ff00ff, inset 0 0 30px rgba(255, 0, 255, 0.3); }
+        }
+        
+        .login-box h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+            margin-bottom: 30px;
+        }
+        
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ffff;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1em;
+        }
+        
+        .login-box button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .login-box button:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Main Game Screen */
+        #gameScreen {
+            display: none;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #ff00ff;
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.5);
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item {
+            background: rgba(255, 0, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #ff00ff;
+            margin: 5px;
+        }
+        
+        .info-item span {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+        
+        .buy-credits-btn {
+            background: linear-gradient(45deg, #00ff00, #00aa00);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(45deg, #ff0000, #aa0000);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        /* Game Menu */
+        .game-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .game-card {
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.6);
+            border-color: #ff00ff;
+        }
+        
+        .game-card h2 {
+            color: #ff00ff;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        
+        .game-card p {
+            color: #00ffff;
+            font-size: 1em;
+        }
+        
+        /* Game Container */
+        .game-container {
+            display: none;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ff00ff;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+        }
+        
+        .game-container.active {
+            display: block;
+        }
+        
+        .back-btn {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            padding: 10px 30px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        canvas {
+            display: block;
+            margin: 20px auto;
+            background: #000;
+            border: 3px solid #00ffff;
+            border-radius: 10px;
+        }
+        
+        .game-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .game-controls button {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        /* Slots specific */
+        .slots-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .slot {
+            width: 100px;
+            height: 100px;
+            background: #000;
+            border: 3px solid #00ffff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #ff00ff;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 50px #ff00ff;
+        }
+        
+        .modal-content h2 {
+            color: #00ffff;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .credit-option {
+            background: rgba(255, 0, 255, 0.2);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .credit-option:hover {
+            background: rgba(255, 0, 255, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .close-modal {
+            background: #ff0000;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .game-info {
+            text-align: center;
+            color: #00ffff;
+            font-size: 1.2em;
+            margin: 15px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .game-menu {
+                grid-template-columns: 1fr;
+            }
+            
+            canvas {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h1>🎮 FLIPPER CASINO 🎮</h1>
+            <input type="text" id="username" placeholder="Usuario">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">INGRESAR</button>
+            <button onclick="register()">REGISTRARSE</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="header">
+            <h1>🎮 FLIPPER CASINO CHILENO 🎮</h1>
+            <div class="user-info">
+                <div class="info-item">Usuario: <span id="displayUsername"></span></div>
+                <div class="info-item">Créditos: <span id="displayCredits">$0 CLP</span></div>
+                <button class="buy-credits-btn" onclick="openBuyModal()">💰 COMPRAR CRÉDITOS</button>
+                <button class="logout-btn" onclick="logout()">SALIR</button>
+            </div>
+        </div>
+
+        <!-- Game Menu -->
+        <div id="gameMenu" class="game-menu">
+            <div class="game-card" onclick="showGame('slots')">
+                <h2>🎰</h2>
+                <h2>TRAGAMONEDAS</h2>
+                <p>Apuesta: $500 CLP</p>
+            </div>
+            <div class="game-card" onclick="showGame('snake')">
+                <h2>🐍</h2>
+                <h2>SNAKE</h2>
+                <p>Apuesta: $300 CLP</p>
+            </div>
+            <div class="game-card" onclick="showGame('penalty')">
+                <h2>⚽</h2>
+                <h2>PENALES</h2>
+                <p>Apuesta: $400 CLP</p>
+            </div>
+            <div class="game-card" onclick="showGame('breakout')">
+                <h2>🧱</h2>
+                <h2>BREAKOUT</h2>
+                <p>Apuesta: $300 CLP</p>
+            </div>
+            <div class="game-card" onclick="showGame('invaders')">
+                <h2>👾</h2>
+                <h2>SPACE INVADERS</h2>
+                <p>Apuesta: $500 CLP</p>
+            </div>
+            <div class="game-card" onclick="showGame('pacman')">
+                <h2>🟡</h2>
+                <h2>PAC-MAN</h2>
+                <p>Apuesta: $400 CLP</p>
+            </div>
+            <div class="game-card" onclick="showGame('pinball')">
+                <h2>🎯</h2>
+                <h2>PINBALL</h2>
+                <p>Apuesta: $600 CLP</p>
+            </div>
+            <div class="game-card" onclick="showGame('truco')">
+                <h2>🃏</h2>
+                <h2>TRUCO</h2>
+                <p>Apuesta: $500 CLP</p>
+            </div>
+        </div>
+
+        <!-- Slots Game -->
+        <div id="slotsGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">🎰 TRAGAMONEDAS 🎰</h2>
+            <div class="game-info">Apuesta: $500 CLP</div>
+            <div class="slots-container">
+                <div class="slot" id="slot1">🍒</div>
+                <div class="slot" id="slot2">🍋</div>
+                <div class="slot" id="slot3">🍊</div>
+            </div>
+            <div class="game-controls">
+                <button onclick="spinSlots()">GIRAR</button>
+            </div>
+            <div class="game-info" id="slotsResult"></div>
+        </div>
+
+        <!-- Snake Game -->
+        <div id="snakeGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">🐍 SNAKE 🐍</h2>
+            <div class="game-info">Apuesta: $300 CLP | Gana: $50 CLP por manzana</div>
+            <canvas id="snakeCanvas" width="400" height="400"></canvas>
+            <div class="game-controls">
+                <button onclick="startSnake()">INICIAR</button>
+            </div>
+            <div class="game-info">Usa las flechas del teclado para moverte</div>
+            <div class="game-info" id="snakeScore">Puntos: 0</div>
+        </div>
+
+        <!-- Penalty Game -->
+        <div id="penaltyGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">⚽ PENALES ⚽</h2>
+            <div class="game-info">Apuesta: $400 CLP | Gana: $800 CLP</div>
+            <canvas id="penaltyCanvas" width="600" height="400"></canvas>
+            <div class="game-controls">
+                <button onclick="shootPenalty('left')">⬅️ IZQUIERDA</button>
+                <button onclick="shootPenalty('center')">⬆️ CENTRO</button>
+                <button onclick="shootPenalty('right')">➡️ DERECHA</button>
+            </div>
+            <div class="game-info" id="penaltyResult"></div>
+        </div>
+
+        <!-- Breakout Game -->
+        <div id="breakoutGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">🧱 BREAKOUT 🧱</h2>
+            <div class="game-info">Apuesta: $300 CLP | Gana: $30 CLP por ladrillo</div>
+            <canvas id="breakoutCanvas" width="600" height="400"></canvas>
+            <div class="game-controls">
+                <button onclick="startBreakout()">INICIAR</button>
+            </div>
+            <div class="game-info">Usa las flechas ← → o mueve el mouse</div>
+            <div class="game-info" id="breakoutScore">Puntos: 0</div>
+        </div>
+
+        <!-- Space Invaders Game -->
+        <div id="invadersGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">👾 SPACE INVADERS 👾</h2>
+            <div class="game-info">Apuesta: $500 CLP | Gana: $120 CLP por invasor</div>
+            <canvas id="invadersCanvas" width="600" height="500"></canvas>
+            <div class="game-controls">
+                <button onclick="startInvaders()">INICIAR</button>
+            </div>
+            <div class="game-info">Usa ← → para mover, ESPACIO para disparar</div>
+            <div class="game-info" id="invadersScore">Puntos: 0</div>
+        </div>
+
+        <!-- Pac-Man Game -->
+        <div id="pacmanGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">🟡 PAC-MAN 🟡</h2>
+            <div class="game-info">Apuesta: $400 CLP | Gana: $20 CLP por punto</div>
+            <canvas id="pacmanCanvas" width="560" height="560"></canvas>
+            <div class="game-controls">
+                <button onclick="startPacman()">INICIAR</button>
+            </div>
+            <div class="game-info">Usa las flechas del teclado</div>
+            <div class="game-info" id="pacmanScore">Puntos: 0</div>
+        </div>
+
+        <!-- Pinball Game -->
+        <div id="pinballGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">🎯 PINBALL 🎯</h2>
+            <div class="game-info">Apuesta: $600 CLP | Gana según puntos</div>
+            <canvas id="pinballCanvas" width="400" height="600"></canvas>
+            <div class="game-controls">
+                <button onclick="startPinball()">INICIAR</button>
+                <button onmousedown="flipperLeft(true)" onmouseup="flipperLeft(false)">⬅️ FLIPPER IZQ</button>
+                <button onmousedown="flipperRight(true)" onmouseup="flipperRight(false)">FLIPPER DER ➡️</button>
+            </div>
+            <div class="game-info" id="pinballScore">Puntos: 0</div>
+        </div>
+
+        <!-- Truco Game -->
+        <div id="trucoGame" class="game-container">
+            <button class="back-btn" onclick="backToMenu()">← VOLVER</button>
+            <h2 style="text-align: center; color: #ff00ff;">🃏 TRUCO 🃏</h2>
+            <div class="game-info">Apuesta: $500 CLP | Gana: $1000 CLP</div>
+            <div id="trucoBoard" style="text-align: center; margin: 20px 0;">
+                <div style="margin: 20px 0;">
+                    <h3 style="color: #00ffff;">Carta del Oponente:</h3>
+                    <div id="opponentCard" style="font-size: 3em; margin: 10px;">🂠</div>
+                </div>
+                <div style="margin: 20px 0;">
+                    <h3 style="color: #00ffff;">Tu Carta:</h3>
+                    <div id="playerCard" style="font-size: 3em; margin: 10px;">🂠</div>
+                </div>
+            </div>
+            <div class="game-controls">
+                <button onclick="playTruco()">JUGAR MANO</button>
+            </div>
+            <div class="game-info" id="trucoResult"></div>
+        </div>
+    </div>
+
+    <!-- Buy Credits Modal -->
+    <div id="buyModal" class="modal">
+        <div class="modal-content">
+            <h2>💰 COMPRAR CRÉDITOS 💰</h2>
+            <p style="color: #00ffff; margin-bottom: 20px;">Selecciona un paquete:</p>
+            <div class="credit-option" onclick="buyCredits(5000)">
+                <h3 style="color: #ff00ff;">$5.000 CLP</h3>
+                <p style="color: #00ffff;">Paquete Básico</p>
+            </div>
+            <div class="credit-option" onclick="buyCredits(10000)">
+                <h3 style="color: #ff00ff;">$10.000 CLP</h3>
+                <p style="color: #00ffff;">Paquete Popular</p>
+            </div>
+            <div class="credit-option" onclick="buyCredits(20000)">
+                <h3 style="color: #ff00ff;">$20.000 CLP</h3>
+                <p style="color: #00ffff;">Paquete Premium</p>
+            </div>
+            <div class="credit-option" onclick="buyCredits(50000)">
+                <h3 style="color: #ff00ff;">$50.000 CLP</h3>
+                <p style="color: #00ffff;">Paquete VIP</p>
+            </div>
+            <button class="close-modal" onclick="closeBuyModal()">CERRAR</button>
+        </div>
+    </div>
+
+    <script>
+        // User Management
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('casinoUsers')) || {};
+
+        function register() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            if (users[username]) {
+                alert('El usuario ya existe');
+                return;
+            }
+            
+            users[username] = {
+                password: password,
+                credits: 10000
+            };
+            
+            localStorage.setItem('casinoUsers', JSON.stringify(users));
+            alert('¡Registro exitoso! Ahora puedes ingresar');
+        }
+
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            if (!users[username] || users[username].password !== password) {
+                alert('Usuario o contraseña incorrectos');
+                return;
+            }
+            
+            currentUser = username;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('displayUsername').textContent = username;
+            updateCreditsDisplay();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('gameScreen').style.display = 'none';
+            backToMenu();
+        }
+
+        function updateCreditsDisplay() {
+            const credits = users[currentUser].credits;
+            document.getElementById('displayCredits').textContent = '$' + credits.toLocaleString('es-CL') + ' CLP';
+            localStorage.setItem('casinoUsers', JSON.stringify(users));
+        }
+
+        function deductCredits(amount) {
+            if (users[currentUser].credits < amount) {
+                alert('¡Créditos insuficientes! Compra más créditos para seguir jugando.');
+                return false;
+            }
+            users[currentUser].credits -= amount;
+            updateCreditsDisplay();
+            return true;
+        }
+
+        function addCredits(amount) {
+            users[currentUser].credits += amount;
+            updateCreditsDisplay();
+        }
+
+        function openBuyModal() {
+            document.getElementById('buyModal').classList.add('active');
+        }
+
+        function closeBuyModal() {
+            document.getElementById('buyModal').classList.remove('active');
+        }
+
+        function buyCredits(amount) {
+            alert(`Compra simulada de $${amount.toLocaleString('es-CL')} CLP\n\nEn un casino real, aquí se procesaría el pago.`);
+            addCredits(amount);
+            closeBuyModal();
+        }
+
+        function showGame(gameName) {
+            document.getElementById('gameMenu').style.display = 'none';
+            document.getElementById(gameName + 'Game').classList.add('active');
+        }
+
+        function backToMenu() {
+            document.querySelectorAll('.game-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById('gameMenu').style.display = 'grid';
+            stopAllGames();
+        }
+
+        function stopAllGames() {
+            if (window.snakeInterval) clearInterval(window.snakeInterval);
+            if (window.breakoutInterval) clearInterval(window.breakoutInterval);
+            if (window.invadersInterval) clearInterval(window.invadersInterval);
+            if (window.pacmanInterval) clearInterval(window.pacmanInterval);
+            if (window.pinballInterval) clearInterval(window.pinballInterval);
+        }
+
+        // SLOTS GAME
+        const slotSymbols = ['🍒', '🍋', '🍊', '🍇', '🍉', '⭐', '💎'];
+        
+        function spinSlots() {
+            if (!deductCredits(500)) return;
+            
+            const slot1 = document.getElementById('slot1');
+            const slot2 = document.getElementById('slot2');
+            const slot3 = document.getElementById('slot3');
+            const result = document.getElementById('slotsResult');
+            
+            let spins = 0;
+            const spinInterval = setInterval(() => {
+                slot1.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                slot2.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                slot3.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                
+                spins++;
+                if (spins > 20) {
+                    clearInterval(spinInterval);
+                    checkSlotsWin(slot1.textContent, slot2.textContent, slot3.textContent, result);
+                }
+            }, 100);
+        }
+
+        function checkSlotsWin(s1, s2, s3, resultDiv) {
+            if (s1 === s2 && s2 === s3) {
+                if (s1 === '💎') {
+                    addCredits(5000);
+                    resultDiv.textContent = '🎉 ¡JACKPOT! Ganaste $5.000 CLP 🎉';
+                    resultDiv.style.color = '#00ff00';
+                } else {
+                    addCredits(1500);
+                    resultDiv.textContent = '🎊 ¡GANASTE! +$1.500 CLP 🎊';
+                    resultDiv.style.color = '#00ff00';
+                }
+            } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+                addCredits(500);
+                resultDiv.textContent = '✨ Dos iguales! +$500 CLP ✨';
+                resultDiv.style.color = '#ffff00';
+            } else {
+                resultDiv.textContent = '❌ Perdiste -$500 CLP';
+                resultDiv.style.color = '#ff0000';
+            }
+        }
+
+        // SNAKE GAME
+        let snake, food, dx, dy, snakeScore;
+        
+        function startSnake() {
+            if (!deductCredits(300)) return;
+            
+            const canvas = document.getElementById('snakeCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            snake = [{x: 200, y: 200}];
+            food = {x: 0, y: 0};
+            dx = 20;
+            dy = 0;
+            snakeScore = 0;
+            
+            placeFood();
+            document.getElementById('snakeScore').textContent = 'Puntos: 0';
+            
+            if (window.snakeInterval) clearInterval(window.snakeInterval);
+            window.snakeInterval = setInterval(() => drawSnake(ctx, canvas), 100);
+            
+            document.onkeydown = changeSnakeDirection;
+        }
+
+        function drawSnake(ctx, canvas) {
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                clearInterval(window.snakeInterval);
+                alert('¡Game Over! Puntos: ' + snakeScore);
+                return;
+            }
+            
+            for (let segment of snake) {
+                if (head.x === segment.x && head.y === segment.y) {
+                    clearInterval(window.snakeInterval);
+                    alert('¡Game Over! Puntos: ' + snakeScore);
+                    return;
+                }
+            }
+            
+            snake.unshift(head);
+            
+            if (head.x === food.x && head.y === food.y) {
+                snakeScore++;
+                addCredits(50);
+                document.getElementById('snakeScore').textContent = 'Puntos: ' + snakeScore + ' (+$50 CLP)';
+                placeFood();
+            } else {
+                snake.pop();
+            }
+            
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ff00';
+            snake.forEach(segment => {
+                ctx.fillRect(segment.x, segment.y, 18, 18);
+            });
+            
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(food.x, food.y, 18, 18);
+        }
+
+        function placeFood() {
+            food.x = Math.floor(Math.random() * 20) * 20;
+            food.y = Math.floor(Math.random() * 20) * 20;
+        }
+
+        function changeSnakeDirection(event) {
+            const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
+            
+            if (event.keyCode === LEFT && dx === 0) {
+                dx = -20;
+                dy = 0;
+            }
+            if (event.keyCode === UP && dy === 0) {
+                dx = 0;
+                dy = -20;
+            }
+            if (event.keyCode === RIGHT && dx === 0) {
+                dx = 20;
+                dy = 0;
+            }
+            if (event.keyCode === DOWN && dy === 0) {
+                dx = 0;
+                dy = 20;
+            }
+        }
+
+        // PENALTY GAME
+        function shootPenalty(direction) {
+            if (!deductCredits(400)) return;
+            
+            const canvas = document.getElementById('penaltyCanvas');
+            const ctx = canvas.getContext('2d');
+            const result = document.getElementById('penaltyResult');
+            
+            ctx.fillStyle = '#0a5f0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(100, 50, 400, 150);
+            
+            const goalkeeperPos = ['left', 'center', 'right'][Math.floor(Math.random() * 3)];
+            let gkX = 250;
+            if (goalkeeperPos === 'left') gkX = 150;
+            if (goalkeeperPos === 'right') gkX = 400;
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.fillRect(gkX, 100, 50, 80);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(gkX + 10, 110, 10, 10);
+            ctx.fillRect(gkX + 30, 110, 10, 10);
+            
+            let ballX = 300;
+            if (direction === 'left') ballX = 200;
+            if (direction === 'right') ballX = 450;
+            
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(ballX, 120, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            if (direction === goalkeeperPos) {
+                result.textContent = '❌ ¡Atajó! Perdiste -$400 CLP';
+                result.style.color = '#ff0000';
+            } else {
+                addCredits(800);
+                result.textContent = '⚽ ¡GOOOL! Ganaste $800 CLP';
+                result.style.color = '#00ff00';
+            }
+        }
+
+        // BREAKOUT GAME (mejorado)
+        let breakoutBall, breakoutPaddle, breakoutBricks, breakoutScore;
+
+        function startBreakout() {
+            if (!deductCredits(300)) return;
+
+            const canvas = document.getElementById('breakoutCanvas');
+            const ctx = canvas.getContext('2d');
+
+            breakoutBall = { x: canvas.width / 2, y: canvas.height - 40, dx: 4, dy: -4, radius: 8 };
+            breakoutPaddle = { x: (canvas.width - 100) / 2, y: canvas.height - 20, width: 120, height: 12, speed: 10 };
+            breakoutScore = 0;
+
+            breakoutBricks = [];
+            const rows = 6;
+            const cols = 10;
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    breakoutBricks.push({
+                        x: col * 55 + 15,
+                        y: row * 25 + 40,
+                        width: 50,
+                        height: 18,
+                        active: true,
+                        color: `hsl(${row * 40}, 100%, 55%)`
+                    });
+                }
+            }
+
+            document.getElementById('breakoutScore').textContent = 'Puntos: 0';
+
+            if (window.breakoutInterval) clearInterval(window.breakoutInterval);
+            window.breakoutInterval = setInterval(() => drawBreakout(ctx, canvas), 16);
+
+            canvas.onmousemove = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                breakoutPaddle.x = e.clientX - rect.left - breakoutPaddle.width / 2;
+                if (breakoutPaddle.x < 0) breakoutPaddle.x = 0;
+                if (breakoutPaddle.x + breakoutPaddle.width > canvas.width) breakoutPaddle.x = canvas.width - breakoutPaddle.width;
+            };
+
+            document.onkeydown = (e) => {
+                if (e.key === 'ArrowLeft') {
+                    breakoutPaddle.x -= breakoutPaddle.speed;
+                }
+                if (e.key === 'ArrowRight') {
+                    breakoutPaddle.x += breakoutPaddle.speed;
+                }
+            };
+        }
+
+        function drawBreakout(ctx, canvas) {
+            ctx.fillStyle = '#050013';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            breakoutBall.x += breakoutBall.dx;
+            breakoutBall.y += breakoutBall.dy;
+
+            if (breakoutBall.x + breakoutBall.radius > canvas.width || breakoutBall.x - breakoutBall.radius < 0) {
+                breakoutBall.dx = -breakoutBall.dx;
+            }
+            if (breakoutBall.y - breakoutBall.radius < 0) {
+                breakoutBall.dy = -breakoutBall.dy;
+            }
+
+            if (
+                breakoutBall.y + breakoutBall.radius > breakoutPaddle.y &&
+                breakoutBall.x > breakoutPaddle.x &&
+                breakoutBall.x < breakoutPaddle.x + breakoutPaddle.width
+            ) {
+                breakoutBall.dy = -Math.abs(breakoutBall.dy) - 0.2;
+                const hitPos = (breakoutBall.x - (breakoutPaddle.x + breakoutPaddle.width / 2)) / (breakoutPaddle.width / 2);
+                breakoutBall.dx = hitPos * 6;
+            }
+
+            if (breakoutBall.y - breakoutBall.radius > canvas.height) {
+                clearInterval(window.breakoutInterval);
+                alert('¡Game Over! Puntos: ' + breakoutScore);
+                return;
+            }
+
+            breakoutBricks.forEach(brick => {
+                if (brick.active &&
+                    breakoutBall.x > brick.x &&
+                    breakoutBall.x < brick.x + brick.width &&
+                    breakoutBall.y > brick.y &&
+                    breakoutBall.y < brick.y + brick.height
+                ) {
+                    brick.active = false;
+                    breakoutBall.dy = -breakoutBall.dy;
+                    breakoutScore++;
+                    addCredits(30);
+                    document.getElementById('breakoutScore').textContent = 'Puntos: ' + breakoutScore + ' (+$30 CLP)';
+                }
+            });
+
+            if (breakoutBricks.every(b => !b.active)) {
+                clearInterval(window.breakoutInterval);
+                addCredits(2000);
+                alert('¡GANASTE BREAKOUT! Bonus: +$2.000 CLP');
+                return;
+            }
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(breakoutBall.x, breakoutBall.y, breakoutBall.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#00ffff';
+            ctx.fillRect(breakoutPaddle.x, breakoutPaddle.y, breakoutPaddle.width, breakoutPaddle.height);
+
+            breakoutBricks.forEach(brick => {
+                if (brick.active) {
+                    ctx.fillStyle = brick.color;
+                    ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                    ctx.strokeStyle = '#000';
+                    ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+                }
+            });
+        }
+
+        // SPACE INVADERS GAME (mejorado)
+        let invadersPlayer, invadersBullets, invadersEnemies, invadersScore, invadersDir = 1, invadersStep = 0;
+
+        function startInvaders() {
+            if (!deductCredits(500)) return;
+
+            const canvas = document.getElementById('invadersCanvas');
+            const ctx = canvas.getContext('2d');
+
+            invadersPlayer = { x: canvas.width / 2 - 20, y: canvas.height - 60, width: 40, height: 20, speed: 7 };
+            invadersBullets = [];
+            invadersScore = 0;
+
+            invadersEnemies = [];
+            const rows = 5;
+            const cols = 10;
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    invadersEnemies.push({
+                        x: col * 50 + 40,
+                        y: row * 35 + 40,
+                        width: 30,
+                        height: 20,
+                        active: true
+                    });
+                }
+            }
+
+            document.getElementById('invadersScore').textContent = 'Puntos: 0';
+
+            if (window.invadersInterval) clearInterval(window.invadersInterval);
+            window.invadersInterval = setInterval(() => drawInvaders(ctx, canvas), 30);
+
+            document.onkeydown = (e) => {
+                if (e.key === 'ArrowLeft' && invadersPlayer.x > 0) {
+                    invadersPlayer.x -= invadersPlayer.speed;
+                }
+                if (e.key === 'ArrowRight' && invadersPlayer.x < canvas.width - invadersPlayer.width) {
+                    invadersPlayer.x += invadersPlayer.speed;
+                }
+                if (e.key === ' ') {
+                    invadersBullets.push({
+                        x: invadersPlayer.x + invadersPlayer.width / 2,
+                        y: invadersPlayer.y,
+                        width: 3,
+                        height: 12,
+                        speed: 9
+                    });
+                }
+            };
+        }
+
+        function drawInvaders(ctx, canvas) {
+            ctx.fillStyle = '#000011';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            invadersBullets.forEach((b, i) => {
+                b.y -= b.speed;
+                if (b.y < 0) invadersBullets.splice(i, 1);
+            });
+
+            invadersStep++;
+            if (invadersStep % 4 === 0) {
+                let hitSide = false;
+                invadersEnemies.forEach(e => {
+                    if (!e.active) return;
+                    e.x += invadersDir * 5;
+                    if (e.x < 10 || e.x + e.width > canvas.width - 10) hitSide = true;
+                });
+                if (hitSide) {
+                    invadersDir *= -1;
+                    invadersEnemies.forEach(e => {
+                        if (!e.active) return;
+                        e.y += 10;
+                        if (e.y + e.height > invadersPlayer.y) {
+                            clearInterval(window.invadersInterval);
+                            alert('¡Los invasores llegaron a la base! Game Over. Puntos: ' + invadersScore);
+                        }
+                    });
+                }
+            }
+
+            invadersBullets.forEach((b, bi) => {
+                invadersEnemies.forEach((e, ei) => {
+                    if (e.active &&
+                        b.x > e.x &&
+                        b.x < e.x + e.width &&
+                        b.y > e.y &&
+                        b.y < e.y + e.height
+                    ) {
+                        e.active = false;
+                        invadersBullets.splice(bi, 1);
+                        invadersScore++;
+                        addCredits(120);
+                        document.getElementById('invadersScore').textContent = 'Puntos: ' + invadersScore + ' (+$120 CLP)';
+                    }
+                });
+            });
+
+            if (invadersEnemies.every(e => !e.active)) {
+                clearInterval(window.invadersInterval);
+                addCredits(3000);
+                alert('¡DERROTASTE A LOS INVASORES! Bonus: +$3.000 CLP');
+                return;
+            }
+
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(invadersPlayer.x, invadersPlayer.y, invadersPlayer.width, invadersPlayer.height);
+
+            ctx.fillStyle = '#ffff00';
+            invadersBullets.forEach(b => {
+                ctx.fillRect(b.x, b.y, b.width, b.height);
+            });
+
+            invadersEnemies.forEach(e => {
+                if (!e.active) return;
+                ctx.fillStyle = '#ff00ff';
+                ctx.fillRect(e.x, e.y, e.width, e.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(e.x + 5, e.y + 5, 5, 5);
+                ctx.fillRect(e.x + 20, e.y + 5, 5, 5);
+            });
+        }
+
+        // PAC-MAN GAME
+        let pacman, ghosts, dots, pacmanScore;
+        
+        function startPacman() {
+            if (!deductCredits(400)) return;
+            
+            const canvas = document.getElementById('pacmanCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            pacman = {x: 280, y: 280, size: 20, dx: 0, dy: 0, speed: 4};
+            pacmanScore = 0;
+            
+            dots = [];
+            for (let x = 20; x < 560; x += 40) {
+                for (let y = 20; y < 560; y += 40) {
+                    dots.push({x: x, y: y, active: true});
+                }
+            }
+            
+            ghosts = [
+                {x: 100, y: 100, color: '#ff0000', dx: 2, dy: 0},
+                {x: 400, y: 100, color: '#00ffff', dx: -2, dy: 0},
+                {x: 100, y: 400, color: '#ffb8ff', dx: 0, dy: 2},
+                {x: 400, y: 400, color: '#ffb852', dx: 0, dy: -2}
+            ];
+            
+            document.getElementById('pacmanScore').textContent = 'Puntos: 0';
+            
+            if (window.pacmanInterval) clearInterval(window.pacmanInterval);
+            window.pacmanInterval = setInterval(() => drawPacman(ctx, canvas), 50);
+            
+            document.onkeydown = (e) => {
+                if (e.keyCode === 37) { pacman.dx = -pacman.speed; pacman.dy = 0; }
+                if (e.keyCode === 38) { pacman.dx = 0; pacman.dy = -pacman.speed; }
+                if (e.keyCode === 39) { pacman.dx = pacman.speed; pacman.dy = 0; }
+                if (e.keyCode === 40) { pacman.dx = 0; pacman.dy = pacman.speed; }
+            };
+        }
+
+        function drawPacman(ctx, canvas) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            pacman.x += pacman.dx;
+            pacman.y += pacman.dy;
+            
+            if (pacman.x < 0) pacman.x = canvas.width;
+            if (pacman.x > canvas.width) pacman.x = 0;
+            if (pacman.y < 0) pacman.y = canvas.height;
+            if (pacman.y > canvas.height) pacman.y = 0;
+            
+            ghosts.forEach(ghost => {
+                ghost.x += ghost.dx;
+                ghost.y += ghost.dy;
+                
+                if (Math.random() < 0.02) {
+                    const directions = [{dx: 2, dy: 0}, {dx: -2, dy: 0}, {dx: 0, dy: 2}, {dx: 0, dy: -2}];
+                    const dir = directions[Math.floor(Math.random() * directions.length)];
+                    ghost.dx = dir.dx;
+                    ghost.dy = dir.dy;
+                }
+                
+                if (ghost.x < 0) ghost.x = canvas.width;
+                if (ghost.x > canvas.width) ghost.x = 0;
+                if (ghost.y < 0) ghost.y = canvas.height;
+                if (ghost.y > canvas.height) ghost.y = 0;
+                
+                const dist = Math.sqrt((pacman.x - ghost.x) ** 2 + (pacman.y - ghost.y) ** 2);
+                if (dist < 30) {
+                    clearInterval(window.pacmanInterval);
+                    alert('¡Game Over! Puntos: ' + pacmanScore);
+                    return;
+                }
+            });
+            
+            dots.forEach(dot => {
+                if (dot.active) {
+                    const dist = Math.sqrt((pacman.x - dot.x) ** 2 + (pacman.y - dot.y) ** 2);
+                    if (dist < 20) {
+                        dot.active = false;
+                        pacmanScore++;
+                        addCredits(20);
+                        document.getElementById('pacmanScore').textContent = 'Puntos: ' + pacmanScore + ' (+$20 CLP)';
+                    }
+                }
+            });
+            
+            if (dots.every(dot => !dot.active)) {
+                clearInterval(window.pacmanInterval);
+                addCredits(1500);
+                alert('¡GANASTE! Bonus: +$1.500 CLP');
+                return;
+            }
+            
+            ctx.fillStyle = '#fff';
+            dots.forEach(dot => {
+                if (dot.active) {
+                    ctx.beginPath();
+                    ctx.arc(dot.x, dot.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.beginPath();
+            ctx.arc(pacman.x, pacman.y, pacman.size, 0.2 * Math.PI, 1.8 * Math.PI);
+            ctx.lineTo(pacman.x, pacman.y);
+            ctx.fill();
+            
+            ghosts.forEach(ghost => {
+                ctx.fillStyle = ghost.color;
+                ctx.beginPath();
+                ctx.arc(ghost.x, ghost.y, 15, Math.PI, 0);
+                ctx.lineTo(ghost.x + 15, ghost.y + 20);
+                ctx.lineTo(ghost.x + 10, ghost.y + 15);
+                ctx.lineTo(ghost.x + 5, ghost.y + 20);
+                ctx.lineTo(ghost.x, ghost.y + 15);
+                ctx.lineTo(ghost.x - 5, ghost.y + 20);
+                ctx.lineTo(ghost.x - 10, ghost.y + 15);
+                ctx.lineTo(ghost.x - 15, ghost.y + 20);
+                ctx.lineTo(ghost.x - 15, ghost.y);
+                ctx.fill();
+                
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(ghost.x - 5, ghost.y, 4, 0, Math.PI * 2);
+                ctx.arc(ghost.x + 5, ghost.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // PINBALL GAME (mejorado)
+        let pinballBall, pinballFlippers, pinballTargets, pinballScore;
+
+        function startPinball() {
+            if (!deductCredits(600)) return;
+
+            const canvas = document.getElementById('pinballCanvas');
+            const ctx = canvas.getContext('2d');
+
+            pinballBall = { x: 200, y: 450, dx: 2, dy: -6, radius: 8, gravity: 0.25 };
+            pinballScore = 0;
+
+            pinballFlippers = {
+                left: { x: 90, y: 540, active: false },
+                right: { x: 230, y: 540, active: false }
+            };
+
+            pinballTargets = [];
+            for (let i = 0; i < 6; i++) {
+                pinballTargets.push({
+                    x: 60 + i * 50,
+                    y: 120 + Math.random() * 150,
+                    radius: 18,
+                    active: true,
+                    value: 150
+                });
+            }
+
+            document.getElementById('pinballScore').textContent = 'Puntos: 0';
+
+            if (window.pinballInterval) clearInterval(window.pinballInterval);
+            window.pinballInterval = setInterval(() => drawPinball(ctx, canvas), 16);
+        }
+
+        function drawPinball(ctx, canvas) {
+            ctx.fillStyle = '#050015';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            pinballBall.dy += pinballBall.gravity;
+            pinballBall.x += pinballBall.dx;
+            pinballBall.y += pinballBall.dy;
+
+            if (pinballBall.x - pinballBall.radius < 0 || pinballBall.x + pinballBall.radius > canvas.width) {
+                pinballBall.dx = -pinballBall.dx;
+            }
+            if (pinballBall.y - pinballBall.radius < 0) {
+                pinballBall.dy = -pinballBall.dy;
+            }
+
+            if (pinballBall.y - pinballBall.radius > canvas.height) {
+                clearInterval(window.pinballInterval);
+                const winnings = Math.floor(pinballScore / 8);
+                addCredits(winnings);
+                alert('Game Over Pinball - Puntos: ' + pinballScore + '\nGanaste: $' + winnings + ' CLP');
+                return;
+            }
+
+            if (pinballFlippers.left.active &&
+                pinballBall.y + pinballBall.radius >= 540 &&
+                pinballBall.x < 200) {
+                pinballBall.dy = -9;
+                pinballBall.dx = -3;
+                pinballScore += 50;
+            }
+
+            if (pinballFlippers.right.active &&
+                pinballBall.y + pinballBall.radius >= 540 &&
+                pinballBall.x > 200) {
+                pinballBall.dy = -9;
+                pinballBall.dx = 3;
+                pinballScore += 50;
+            }
+
+            pinballTargets.forEach(t => {
+                if (!t.active) return;
+                const dist = Math.sqrt((pinballBall.x - t.x) ** 2 + (pinballBall.y - t.y) ** 2);
+                if (dist < pinballBall.radius + t.radius) {
+                    t.active = false;
+                    pinballBall.dy = -pinballBall.dy;
+                    pinballScore += t.value;
+                    document.getElementById('pinballScore').textContent = 'Puntos: ' + pinballScore;
+                }
+            });
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(pinballBall.x, pinballBall.y, pinballBall.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = pinballFlippers.left.active ? '#00ff00' : '#00ffff';
+            ctx.fillRect(70, 540, 80, 10);
+
+            ctx.fillStyle = pinballFlippers.right.active ? '#00ff00' : '#00ffff';
+            ctx.fillRect(250, 540, 80, 10);
+
+            pinballTargets.forEach(t => {
+                if (!t.active) return;
+                ctx.fillStyle = '#ff00ff';
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, t.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(t.value, t.x, t.y + 3);
+            });
+
+            document.getElementById('pinballScore').textContent = 'Puntos: ' + pinballScore;
+        }
+
+        function flipperLeft(active) {
+            if (pinballFlippers) pinballFlippers.left.active = active;
+        }
+        function flipperRight(active) {
+            if (pinballFlippers) pinballFlippers.right.active = active;
+        }
+
+        // TRUCO GAME
+        const trucoCards = [
+            {name: '1 Espada', value: 14},
+            {name: '1 Basto', value: 13},
+            {name: '7 Espada', value: 12},
+            {name: '7 Oro', value: 11},
+            {name: '3', value: 10},
+            {name: '2', value: 9},
+            {name: '1', value: 8},
+            {name: 'Rey', value: 7},
+            {name: 'Caballo', value: 6},
+            {name: 'Sota', value: 5},
+            {name: '7', value: 4},
+            {name: '6', value: 3},
+            {name: '5', value: 2},
+            {name: '4', value: 1}
+        ];
+
+        function playTruco() {
+            if (!deductCredits(500)) return;
+            
+            const playerCard = trucoCards[Math.floor(Math.random() * trucoCards.length)];
+            const opponentCard = trucoCards[Math.floor(Math.random() * trucoCards.length)];
+            
+            document.getElementById('playerCard').textContent = '🂠 ' + playerCard.name;
+            document.getElementById('opponentCard').textContent = '🂠 ' + opponentCard.name;
+            
+            const result = document.getElementById('trucoResult');
+            
+            if (playerCard.value > opponentCard.value) {
+                addCredits(1000);
+                result.textContent = '🎉 ¡GANASTE! +$1.000 CLP';
+                result.style.color = '#00ff00';
+            } else if (playerCard.value < opponentCard.value) {
+                result.textContent = '❌ Perdiste -$500 CLP';
+                result.style.color = '#ff0000';
+            } else {
+                addCredits(500);
+                result.textContent = '🤝 ¡EMPATE! Recuperas tu apuesta';
+                result.style.color = '#ffff00';
+            }
+        }
+    </script>
+</body>
+</html>
